@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "HLTV Fantasy Team Hider",
+  "version": "1.0.0",
+  "description": "Hide rival HLTV Fantasy money-draft lineups until the game starts. Your own team stays visible.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "HLTV Fantasy Team Hider",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": ["https://www.hltv.org/*", "https://hltv.org/*"],
+    "css": ["content.css"],
+    "js": ["core.js", "content.js"],
+    "run_at": "document_start"
+  }]
+}

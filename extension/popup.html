@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HLTV Fantasy Team Hider</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="core.js" defer></script>
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <header><span class="eyebrow">HLTV FANTASY · MONEY DRAFT</span><h1>Keep your picks yours.</h1></header>
+  <label class="toggle"><span>Hide rival lineups</span><input id="enabled" type="checkbox" checked></label>
+  <section class="status" aria-live="polite"><span id="badge">CHECKING</span><h2 id="status-title">Connecting to this tab…</h2><p id="status-detail">Open an HLTV Fantasy game to see its status.</p><p id="deadline" hidden></p></section>
+  <button id="refresh" type="button">Check status again</button>
+  <form id="own-team-form">
+    <label for="own-team">Your team URL <span>(fallback)</span></label>
+    <p>We recognize “My team” automatically. If yours is hidden, paste its HLTV Fantasy link here.</p>
+    <input id="own-team" type="url" placeholder="https://www.hltv.org/fantasy/…/team/…" autocomplete="off">
+    <div class="actions"><button type="submit">Save my team</button><button id="clear" type="button">Clear</button></div>
+  </form>
+  <p id="feedback" role="status"></p>
+  <footer>Only changes what you see in this browser. Other people need their own extension.</footer>
+</body>
+</html>

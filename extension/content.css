@@ -1,0 +1,33 @@
+/* The stylesheet loads before the page: new lineups are hidden before first paint. */
+html:not([data-fth-ready]) #fantasy,
+html[data-fth-page="blocked"] #fantasy,
+html[data-fth-page="blocked"] .fantasy {
+  display: none !important;
+}
+
+/* Also cover roster previews inserted into league pages, including on hover. */
+html[data-fth-protect="true"]:not([data-fth-page="own"]) #fantasy :is(
+  .fantasy-team-preview, .team-preview, .team-preview-container,
+  .fantasy-team-lineup, .team-lineup, .team-player-list,
+  .team-overview, .team-players, .player-tracker
+) {
+  display: none !important;
+}
+
+#fth-notice {
+  box-sizing: border-box;
+  margin: 16px 0;
+  padding: 22px;
+  border: 1px solid #53788d;
+  border-radius: 8px;
+  background: #1b2b37;
+  color: #e9f2f7;
+  font: 14px/1.6 system-ui, sans-serif;
+}
+#fth-notice strong { display: block; font-size: 18px; margin-bottom: 6px; }
+#fth-notice p { margin: 4px 0 12px; }
+#fth-notice a { color: #99d8ff; margin-right: 18px; text-decoration: underline; }
+#fth-notice button {
+  background: #304b5e; color: #fff; border: 1px solid #6b91a9;
+  border-radius: 4px; padding: 6px 12px; cursor: pointer;
+}

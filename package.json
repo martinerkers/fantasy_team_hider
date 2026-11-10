@@ -1,0 +1,13 @@
+{
+  "name": "hltv-fantasy-team-hider",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hide rival HLTV Fantasy lineups until the game starts.",
+  "scripts": {
+    "test": "playwright test",
+    "package": "node scripts/package.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0"
+  }
+}
