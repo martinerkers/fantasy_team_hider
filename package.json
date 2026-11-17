@@ -5,6 +5,8 @@
   "description": "Hide rival HLTV Fantasy lineups until the game starts.",
   "scripts": {
     "test": "playwright test",
+    "test:chrome": "playwright test --project=chrome",
+    "test:firefox": "playwright test --project=firefox",
     "package": "node scripts/package.cjs"
   },
   "devDependencies": {

@@ -1,11 +1,12 @@
 (() => {
   'use strict';
+  const api = globalThis.browser ?? globalThis.chrome;
   const $ = id => document.getElementById(id);
   let tabId;
   let status;
 
   async function send(type) {
-    try { return await chrome.tabs.sendMessage(tabId, { type }); } catch { return null; }
+    try { return await api.tabs.sendMessage(tabId, { type }); } catch { return null; }
   }
 
   function render(value) {
@@ -27,16 +28,16 @@
   }
 
   async function initialize() {
-    const stored = await chrome.storage.local.get({ enabled: true, ownTeamUrls: {} });
+    const stored = await api.storage.local.get({ enabled: true, ownTeamUrls: {} });
     $('enabled').checked = stored.enabled !== false;
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     tabId = tab?.id;
     render(await send('fth-status'));
     if (status?.gameId) $('own-team').value = stored.ownTeamUrls[status.gameId] || status.ownTeamUrl || '';
   }
 
   $('enabled').addEventListener('change', async () => {
-    await chrome.storage.local.set({ enabled: $('enabled').checked });
+    await api.storage.local.set({ enabled: $('enabled').checked });
     render(await send('fth-status'));
   });
   $('refresh').addEventListener('click', async () => {
@@ -53,18 +54,18 @@
       $('feedback').textContent = 'Paste the full HLTV Fantasy team URL, including /league/…/team/…';
       return;
     }
-    const { ownTeamUrls = {} } = await chrome.storage.local.get('ownTeamUrls');
+    const { ownTeamUrls = {} } = await api.storage.local.get('ownTeamUrls');
     ownTeamUrls[parsed.gameId] = new URL(input).href;
-    await chrome.storage.local.set({ ownTeamUrls });
+    await api.storage.local.set({ ownTeamUrls });
     $('feedback').textContent = 'Your team is saved and will stay visible.';
     render(await send('fth-status'));
   });
   $('clear').addEventListener('click', async () => {
     const gameId = FantasyHider.route($('own-team').value)?.gameId || status?.gameId;
     if (!gameId) return;
-    const { ownTeamUrls = {} } = await chrome.storage.local.get('ownTeamUrls');
+    const { ownTeamUrls = {} } = await api.storage.local.get('ownTeamUrls');
     delete ownTeamUrls[gameId];
-    await chrome.storage.local.set({ ownTeamUrls });
+    await api.storage.local.set({ ownTeamUrls });
     $('own-team').value = '';
     $('feedback').textContent = 'Saved URL cleared. Automatic recognition is still active.';
     render(await send('fth-status'));

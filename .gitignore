@@ -2,5 +2,6 @@ node_modules/
 .npm-cache/
 test-results/
 playwright-report/
+.playwright-browsers/
 dist/
 research/

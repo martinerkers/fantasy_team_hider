@@ -1,8 +1,10 @@
 # HLTV Fantasy Team Hider
 
-A Chrome Manifest V3 extension for **money draft** that hides rival HLTV Fantasy lineups while rosters can still be changed. Your own team stays visible so you can draft, change players, assign roles, and use boosters. Live draft is outside the supported scope; there is no live-draft turn, auction, or player-pool handling.
+A Chrome and Firefox Manifest V3 extension for **money draft** that hides rival HLTV Fantasy lineups while rosters can still be changed. Your own team stays visible so you can draft, change players, assign roles, and use boosters. Live draft is outside the supported scope; there is no live-draft turn, auction, or player-pool handling.
 
 ## Install
+
+### Chrome
 
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode** in the upper right.
@@ -10,6 +12,15 @@ A Chrome Manifest V3 extension for **money draft** that hides rival HLTV Fantasy
 4. Reload any open HLTV tabs, then visit a Fantasy game.
 
 Alternatively, extract `dist/hltv-fantasy-team-hider.zip` and load its extracted folder. This is a local extension; it has not been published to the Chrome Web Store.
+
+### Firefox (142 or later)
+
+1. Run `npm.cmd run package` from the project folder to build the Firefox version.
+2. Open `about:debugging#/runtime/this-firefox` in Firefox.
+3. Click **Load Temporary Add-on** and select `dist/hltv-fantasy-team-hider-firefox/manifest.json`, or select `dist/hltv-fantasy-team-hider-firefox.zip` directly.
+4. Reload any open HLTV tabs, then visit a Fantasy game. Allow the extension to run on HLTV if Firefox prompts for site access.
+
+This temporary installation lasts until Firefox restarts. Permanent installation in standard Firefox requires a Mozilla-signed add-on; the generated ZIP is unsigned and ready to submit for signing, and has not been published to Firefox Add-ons. See Mozilla's [temporary installation instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
 
 ## Behavior
 
@@ -23,17 +34,20 @@ Alternatively, extract `dist/hltv-fantasy-team-hider.zip` and load its extracted
 
 This changes what **you see in your browser**. It cannot hide your team from other HLTV users. Everyone who wants this behavior must install it themselves. It is a visual filter, not access control: the underlying page and HLTV responses still contain team data.
 
-The only Chrome permission is `storage`, for the toggle and your saved team URLs. Scripts run only on `hltv.org` and `www.hltv.org`. No analytics, remote code, external services, or background worker. Requests go to the same HLTV origin as the current page.
+The only API permission in either browser is `storage`, for the toggle and your saved team URLs. Scripts run only on `hltv.org` and `www.hltv.org`. No analytics, remote code, external services, or background worker. Requests go to the same HLTV origin as the current page. The Firefox manifest declares no data collection using Mozilla's built-in consent settings.
 
 ## Development and verification
 
 ```powershell
 npm.cmd install
+npm.cmd exec playwright install firefox
 npm.cmd test
 npm.cmd run package
 ```
 
-Tests use an installed Google Chrome with Playwright, mocked HLTV responses, and real browser DOM/CSS. They cover direct links, first-load protection, own-team exemptions, delayed starts, API failures, automatic reveal, game isolation, SPA navigation, dynamic previews, the toggle, and the popup.
+Tests run in installed Google Chrome and Playwright's Firefox, with mocked HLTV responses and extension APIs and real browser DOM/CSS. The Firefox tests exercise the `browser` API namespace; Chrome tests exercise `chrome`. They cover direct links, first-load protection, own-team exemptions, delayed starts, API failures, automatic reveal, game isolation, SPA navigation, dynamic previews, the toggle, and the popup. Use `npm.cmd run test:chrome` or `npm.cmd run test:firefox` to run just one browser.
+
+Both builds share `extension/` sources. Packaging merges `scripts/firefox-manifest.json` into the base manifest for Firefox, adding a stable add-on ID, a Firefox 142 minimum version, and the data collection declaration. On Windows, packaging creates both ZIPs with `manifest.json` at the archive root. On other platforms it creates the corresponding unpacked folders in `dist/`.
 
 The live API was checked against games 672 (started) and 673 (draft open) on November 10, 2026. Live frontend assets were unavailable to the development environment, so authenticated live-page rendering and HLTV's exact preview markup still need a manual check. If HLTV changes its routes, preview classes, or ownership schema, update the adapter in `extension/core.js` and preview selectors in `extension/content.css`. The popup's saved team URL provides a fallback for ownership recognition.
 

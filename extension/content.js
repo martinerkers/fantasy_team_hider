@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const api = globalThis.browser ?? globalThis.chrome;
   const { route, parseOverview, isOwnTeam } = FantasyHider;
   const root = document.documentElement;
   const snapshots = new Map();
@@ -133,18 +134,18 @@
     return request;
   }
 
-  chrome.storage.local.get({ enabled: true, ownTeamUrls: {} }).then(value => {
+  api.storage.local.get({ enabled: true, ownTeamUrls: {} }).then(value => {
     settings = value;
     settingsReady = true;
     update();
   }).catch(() => { settingsReady = true; update(); });
-  chrome.storage.onChanged.addListener((changes, area) => {
+  api.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.enabled) settings.enabled = changes.enabled.newValue !== false;
     if (changes.ownTeamUrls) settings.ownTeamUrls = changes.ownTeamUrls.newValue || {};
     update();
   });
-  chrome.runtime.onMessage.addListener((message, _sender, respond) => {
+  api.runtime.onMessage.addListener((message, _sender, respond) => {
     if (message.type === 'fth-status') { update(); respond(lastStatus); }
     if (message.type === 'fth-refresh') {
       refresh(route(location.href)?.gameId).then(() => respond(lastStatus));

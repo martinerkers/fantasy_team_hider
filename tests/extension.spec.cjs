@@ -21,10 +21,11 @@ async function mount(page, { url = teamUrl, data = openGame, saved = {}, failed 
     }
     return request.fulfill({ contentType: 'text/html', body: `<!doctype html><html><head><style>${css}</style></head><body><main class="contentCol"><div id="fantasy"><nav><a href="/fantasy/673/league/220533/team/7">My team</a></nav><div class="team-overview">RIVAL SECRET PICKS</div><form id="editor">Player editor</form></div></main></body></html>` });
   });
-  await page.addInitScript(({ core, content, saved }) => {
+  const apiName = page.context().browser().browserType().name() === 'firefox' ? 'browser' : 'chrome';
+  await page.addInitScript(({ core, content, saved, apiName }) => {
     const stored = { enabled: true, ownTeamUrls: saved };
     const changes = [];
-    window.chrome = {
+    window[apiName] = {
       storage: {
         local: {
           async get() { return stored; },
@@ -42,7 +43,7 @@ async function mount(page, { url = teamUrl, data = openGame, saved = {}, failed 
     const start = () => { (0, eval)(core); (0, eval)(content); };
     if (document.documentElement) start();
     else new MutationObserver((_, observer) => { if (document.documentElement) { observer.disconnect(); start(); } }).observe(document, { childList: true });
-  }, { core, content, saved });
+  }, { core, content, saved, apiName });
   await page.goto(url);
   return state;
 }
@@ -146,9 +147,9 @@ test('preserves league navigation and conceals dynamically added previews', asyn
 test('toggle restores content and re-enables protection immediately', async ({ page }) => {
   await mount(page);
   await expect(page.locator('#fantasy')).toBeHidden();
-  await page.evaluate(() => chrome.storage.local.set({ enabled: false }));
+  await page.evaluate(() => (globalThis.browser ?? globalThis.chrome).storage.local.set({ enabled: false }));
   await expect(page.locator('.team-overview')).toBeVisible();
-  await page.evaluate(() => chrome.storage.local.set({ enabled: true }));
+  await page.evaluate(() => (globalThis.browser ?? globalThis.chrome).storage.local.set({ enabled: true }));
   await expect(page.locator('#fantasy')).toBeHidden();
 });
 
@@ -163,9 +164,10 @@ test('popup saves only valid HLTV team URLs and persists the toggle', async ({ p
     const file = new URL(request.request().url()).pathname.slice(1) || 'popup.html';
     return request.fulfill({ body: source(file), contentType: file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : 'text/html' });
   });
-  await page.addInitScript(() => {
+  const apiName = page.context().browser().browserType().name() === 'firefox' ? 'browser' : 'chrome';
+  await page.addInitScript(apiName => {
     window.stored = { enabled: true, ownTeamUrls: {} };
-    window.chrome = {
+    window[apiName] = {
       storage: { local: {
         async get() { return window.stored; },
         async set(value) { Object.assign(window.stored, value); }
@@ -175,7 +177,7 @@ test('popup saves only valid HLTV team URLs and persists the toggle', async ({ p
         async sendMessage() { return { mode: window.stored.enabled ? 'waiting' : 'disabled', gameId: '673' }; }
       }
     };
-  });
+  }, apiName);
   await page.goto('https://extension.test/popup.html');
   await expect(page.locator('#status-title')).toHaveText('Waiting for roster lock');
   await page.locator('#own-team').fill('https://example.com/fantasy/673/league/1/team/1');
